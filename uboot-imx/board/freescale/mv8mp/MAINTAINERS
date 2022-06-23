@@ -1,0 +1,6 @@
+i.MX8MP Microvison BOARD
+M:	Kihyeok Kim <khkim@mvlab.co.kr>
+S:	Maintained
+F:	board/freescale/mv8mp/
+F:	include/configs/mv8mp.h
+F:	configs/mv8mp_defconfig
