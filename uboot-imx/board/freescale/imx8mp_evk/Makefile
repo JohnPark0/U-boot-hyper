@@ -12,9 +12,5 @@ obj-$(CONFIG_IMX8M_LPDDR4) += lpddr4_timing.o
 obj-$(CONFIG_IMX8M_DDR4) += ddr4_timing.o
 endif
 
-#ifdef CONFIG_SPL_BUILD
-# hypervisor
-SOBJS += hyp.o
-SOBJS += hyp_traps.o
-SOBJS += lpae.o
-#endif
+#wxvisor
+obj-y += hyp.o hyp_traps.o lpae.o
