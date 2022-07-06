@@ -55,8 +55,11 @@
 #define READ_SYSREG64(R...)     READ_CP64(R)
 #define WRITE_SYSREG64(V, R...) WRITE_CP64(V, R)
 
-#define READ_SYSREG(R...)       READ_SYSREG32(R)
-#define WRITE_SYSREG(V, R...)   WRITE_SYSREG32(V, R)
+//#define READ_SYSREG(R...)       READ_SYSREG32(R)
+//#define WRITE_SYSREG(V, R...)   WRITE_SYSREG32(V, R)
+#define READ_SYSREG(R...)       READ_SYSREG64(R)
+#define WRITE_SYSREG(V, R...)   WRITE_SYSREG64(V, R)
+
 
 #endif /* __ASSEMBLY__ */
 
@@ -233,11 +236,13 @@
 #define HTPIDR          p15,4,c13,c0,2  /* HYp Software Thread Id Register */
 
 union hsr {
-    uint32_t bits;
+    //uint32_t bits;
+    uint64_t bits;
     struct {
         unsigned long iss : 25;  /* Instruction Specific Syndrome */
         unsigned long len : 1;   /* Instruction length */
         unsigned long ec : 6;    /* Exception Class */
+        unsigned long _rec0 : 30;
     };
 
     /* Common to all conditional exception classes (0x0N, except 0x00). */
@@ -313,7 +318,13 @@ union hsr {
         unsigned long s1ptw : 1; /* Stage 2 fault during stage 1 translation */
         unsigned long cache : 1; /* Cache Maintenance */
         unsigned long eat : 1;   /* External Abort Type */
-        unsigned long sbzp0 : 6;
+       
+        unsigned long fnv : 1;   /* FAR not Valid */
+        //unsigned long sbzp0 : 6;
+        unsigned long sbzp0 : 3;
+         unsigned long ar : 1;    /* Acquire Release */
+        unsigned long sf : 1;
+        
         unsigned long reg : 5;   /* Register */
         unsigned long sign : 1;  /* Sign extend */
         unsigned long size : 2;  /* Access Size */
@@ -321,6 +332,26 @@ union hsr {
         unsigned long len : 1;   /* Instruction length */
         unsigned long ec : 6;    /* Exception Class */
     } dabt; /* HSR_EC_DATA_ABORT_* */
+
+    struct hsr_sysreg {
+       unsigned long read : 1;   /* Direction */
+       unsigned long crm : 4;    /* CRm */
+       unsigned long reg : 5;    /* Rt */
+       unsigned long crn : 4;    /* CRn */
+       unsigned long op1 : 3;    /* Op1 */
+       unsigned long op2 : 3;    /* Op2 */
+       unsigned long op0 : 2;    /* Op0 */
+       unsigned long res0 : 3;
+       unsigned long len : 1;    /* Instruction length */
+       unsigned long ec : 6;
+    } sysreg; /* HSR_EC_SYSREG */
+
+    struct hsr_brk {
+       unsigned long comment : 16;   /* Comment */
+       unsigned long res0 : 9;
+       unsigned long len : 1;        /* Instruction length */
+       unsigned long ec : 6;         /* Exception Class */
+    } brk;
 };
 
 #define HSR_EC_UNKNOWN              0x00
@@ -420,7 +451,7 @@ union hsr {
 
 struct cpu_user_regs
 {
-    uint32_t spsr;
+    /*uint32_t spsr;
     uint32_t elr;
     uint32_t lr;
     uint32_t r0;
@@ -435,7 +466,24 @@ struct cpu_user_regs
     uint32_t r9;
     uint32_t r10;
     uint32_t r11;
-    uint32_t r12;
+    uint32_t r12;*/
+
+    uint64_t spsr;
+    uint64_t elr;
+    uint64_t lr;
+    uint64_t x0;
+    uint64_t x1;
+    uint64_t x2;
+    uint64_t x3;
+    uint64_t x4;
+    uint64_t x5;
+    uint64_t x6;
+    uint64_t x7;
+    uint64_t x8;
+    uint64_t x9;
+    uint64_t x10;
+    uint64_t x11;
+    uint64_t x12;
 };
 
 #define PSR_MODE_MASK 0x1f
@@ -447,5 +495,5 @@ struct cpu_user_regs
 #define PSR_MODE_MON 0x16
 #define PSR_MODE_ABT 0x17
 #define PSR_MODE_HYP 0x1a
-#define PSR_MODE_UND 0x1b
+changes#define PSR_MODE_UND 0x1b
 #define PSR_MODE_SYS 0x1f
